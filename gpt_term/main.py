@@ -100,16 +100,16 @@ class ChatMode:
 class ChatGPT:
     def __init__(self, api_key: str, timeout: float):
         self.api_key = api_key
-        self.host = "https://api.openai.com"
-        self.endpoint = self.host + "/v1/chat/completions"
+        self.host = "https://api.deepinfra.com"
+        self.endpoint = self.host + "/v1/openai/chat/completions"
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}"
+         #  "Authorization": f"Bearer {api_key}"
         }
         self.messages = [
             {"role": "system", "content": f"You are a helpful assistant.\nCurrent date: {datetime.now().strftime('%Y-%m-%d')}"}]
-        self.model = 'gpt-3.5-turbo'
-        self.tokens_limit = 4096
+        self.model = 'microsoft/WizardLM-2-8x22B'
+        self.tokens_limit = 65536
         # as default: gpt-3.5-turbo has a tokens limit as 4096
         # when model changes, tokens will also be changed
         self.temperature = 1
@@ -246,7 +246,8 @@ class ChatGPT:
         data = {
             "model": self.model,
             "messages": self.messages,
-            "temperature": self.temperature
+            "temperature": self.temperature,
+            "max_tokens": 4000
         }
         response = self.send_request_silent(data)
         if response:
@@ -261,7 +262,8 @@ class ChatGPT:
                 "model": self.model,
                 "messages": self.messages,
                 "stream": ChatMode.stream_mode,
-                "temperature": self.temperature
+                "temperature": self.temperature,
+                "max_tokens": 4000
             }
             response = self.send_request(data)
             if response is None:
@@ -325,7 +327,7 @@ class ChatGPT:
         prompt = f'Generate title shorter than 10 words for the following content in content\'s language. The tilte contains ONLY words. DO NOT include line-break. \n\nContent: """\n{content}\n"""'
         messages = [{"role": "user", "content": prompt}]
         data = {
-            "model": "gpt-3.5-turbo",
+            "model": "microsoft/WizardLM-2-8x22B",
             "messages": messages,
             "temperature": 0.5
         }
@@ -466,20 +468,22 @@ class ChatGPT:
                 _("gpt_term.model_set"),old_model=old_model)
             return
         self.model = str(new_model)
-        if "gpt-4-1106-preview" in self.model:
-            self.tokens_limit = 128000
-        elif "gpt-4-vision-preview" in self.model:
-            self.tokens_limit = 128000
-        elif "gpt-4-32k" in self.model:
+        if "microsoft/WizardLM-2-8x22B" in self.model:
+            self.tokens_limit = 65536
+        elif "microsoft/WizardLM-2-7B" in self.model:
             self.tokens_limit = 32768
-        elif "gpt-4" in self.model:
+        elif "mistralai/Mixtral-8x22B-Instruct-v0.1" in self.model:
+            self.tokens_limit = 32768
+        elif "HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1" in self.model:
+            self.tokens_limit = 32768
+        elif "mistralai/Mixtral-8x7B-Instruct-v0.1" in self.model:
+            self.tokens_limit = 32768
+        elif "mistralai/Mistral-7B-Instruct-v0.2" in self.model:
+            self.tokens_limit = 32768
+        elif "meta-llama/Meta-Llama-3-70B-Instruct" in self.model:
             self.tokens_limit = 8192
-        elif "gpt-3.5-turbo-16k" in self.model:
-            self.tokens_limit = 16385
-        elif "gpt-3.5-turbo-1106" in self.model:
-            self.tokens_limit = 16385
-        elif "gpt-3.5-turbo" in self.model:
-            self.tokens_limit = 4096
+        elif "meta-llama/Meta-Llama-3-8B-Instruct" in self.model:
+            self.tokens_limit = 8192
         else:
             self.tokens_limit = float('nan')
         console.print(
