@@ -108,7 +108,7 @@ class ChatGPT:
         }
         self.messages = [
             {"role": "system", "content": f"You are a helpful assistant.\nCurrent date: {datetime.now().strftime('%Y-%m-%d')}"}]
-        self.model = 'microsoft/WizardLM-2-8x22B'
+        self.model = 'deepinfra/WizardLM-2-8x22B'
         self.tokens_limit = 65536
         # as default: gpt-3.5-turbo has a tokens limit as 4096
         # when model changes, tokens will also be changed
@@ -247,7 +247,7 @@ class ChatGPT:
             "model": self.model,
             "messages": self.messages,
             "temperature": self.temperature,
-            "max_tokens": 4000
+            "max_tokens": 5000
         }
         response = self.send_request_silent(data)
         if response:
@@ -263,7 +263,7 @@ class ChatGPT:
                 "messages": self.messages,
                 "stream": ChatMode.stream_mode,
                 "temperature": self.temperature,
-                "max_tokens": 4000
+                "max_tokens": 5000
             }
             response = self.send_request(data)
             if response is None:
@@ -327,7 +327,7 @@ class ChatGPT:
         prompt = f'Generate title shorter than 10 words for the following content in content\'s language. The tilte contains ONLY words. DO NOT include line-break. \n\nContent: """\n{content}\n"""'
         messages = [{"role": "user", "content": prompt}]
         data = {
-            "model": "microsoft/WizardLM-2-8x22B",
+            "model": "deepinfra/WizardLM-2-8x22B",
             "messages": messages,
             "temperature": 0.5
         }
@@ -468,21 +468,21 @@ class ChatGPT:
                 _("gpt_term.model_set"),old_model=old_model)
             return
         self.model = str(new_model)
-        if "microsoft/WizardLM-2-8x22B" in self.model:
+        if "deepinfra/WizardLM-2-8x22B" in self.model:
             self.tokens_limit = 65536
-        elif "microsoft/WizardLM-2-7B" in self.model:
+        elif "deepinfra/WizardLM-2-7B" in self.model:
+            self.tokens_limit = 32768
+        elif "deepinfra/Qwen2-72B-Instruct" in self.model:
             self.tokens_limit = 32768
         elif "mistralai/Mixtral-8x22B-Instruct-v0.1" in self.model:
-            self.tokens_limit = 32768
-        elif "HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1" in self.model:
             self.tokens_limit = 32768
         elif "mistralai/Mixtral-8x7B-Instruct-v0.1" in self.model:
             self.tokens_limit = 32768
         elif "mistralai/Mistral-7B-Instruct-v0.2" in self.model:
             self.tokens_limit = 32768
-        elif "meta-llama/Meta-Llama-3-70B-Instruct" in self.model:
+        elif "deepinfra/Meta-Llama-3-70B-Instruct" in self.model:
             self.tokens_limit = 8192
-        elif "meta-llama/Meta-Llama-3-8B-Instruct" in self.model:
+        elif "deepinfra/Meta-Llama-3-8B-Instruct" in self.model:
             self.tokens_limit = 8192
         else:
             self.tokens_limit = float('nan')
@@ -1016,6 +1016,7 @@ def main():
     parser.add_argument('--host', metavar='HOST', type=str, help=_("gpt_term.help_host"))
     parser.add_argument('-m', '--multi', action='store_true', help=_("gpt_term.help_m"))
     parser.add_argument('-r', '--raw', action='store_true', help=_("gpt_term.help_r"))
+    parser.add_argument('-s', '--stream', action='store_true', help=_("gpt_term.help_s"))
     ## 新添加的选项：--lang
     parser.add_argument('-l','--lang', type=str, choices=['en', 'zh_CN', 'jp', 'de'], help=_("gpt_term.help_lang"))
     # normal function args
@@ -1110,6 +1111,9 @@ def main():
 
     if args.raw:
         ChatMode.toggle_raw_mode()
+
+    if args.stream:
+        ChatMode.toggle_stream_mode()
 
     if args.load:
         chat_history = load_chat_history(args.load)
