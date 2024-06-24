@@ -104,7 +104,7 @@ class ChatGPT:
         self.endpoint = self.host + "/v1/openai/chat/completions"
         self.headers = {
             "Content-Type": "application/json",
-         #  "Authorization": f"Bearer {api_key}"
+            "Authorization": f"Bearer {api_key}"
         }
         self.messages = [
             {"role": "system", "content": f"You are a helpful assistant.\nCurrent date: {datetime.now().strftime('%Y-%m-%d')}"}]
