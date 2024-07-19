@@ -247,7 +247,7 @@ class ChatGPT:
             "model": self.model,
             "messages": self.messages,
             "temperature": self.temperature,
-            "max_tokens": 5000
+            "max_tokens": 500
         }
         response = self.send_request_silent(data)
         if response:
@@ -263,7 +263,7 @@ class ChatGPT:
                 "messages": self.messages,
                 "stream": ChatMode.stream_mode,
                 "temperature": self.temperature,
-                "max_tokens": 5000
+                "max_tokens": 500
             }
             response = self.send_request(data)
             if response is None:
